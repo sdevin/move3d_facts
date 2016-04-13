@@ -28,3 +28,10 @@
 *.app
 
 *~
+*.config
+*.creator
+*.user
+*.files
+*.includes
+*.autosave
+
