@@ -1,8 +1,22 @@
 ---
 computedFacts:
    isReachableBy: true
-   isVisibleBy: false
-   isOn: true
-   isIn: true
+   isVisibleBy: true
+   isOn: false
+   isIn: false
+
+thresholdReachable:
+    humanObject: 1.5
+    robotObject: 1.0
+    humanSupport: 2.0
+    robotSupport: 1.5
+humanJoint: 'rightHand'
+robotJoint: 'pr2laser_tilt_mount_joint'
+robotName: 'PR2_ROBOT'
+objectToMonitor: ['RED_CUBE', 'BLUE_CUBE', 'BLACK_CUBE', 'GREEN_CUBE', 'GREY_TAPE', 'LOTR_TAPE', 'WALLE_TAPE', 'PLACEMAT_RED']
+supportToMonitor: ['TABLE_4']
+agentToMonitor: ['HERAKLES_HUMAN1', 'HERAKLES_HUMAN2']
+
+areaVisible: 'interaction'
 
 
