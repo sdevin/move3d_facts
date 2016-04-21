@@ -173,6 +173,36 @@ int main(int argc, char** argv) {
                 fact_msg.factObservability = 1.0;
                 factList_msg.factList.push_back(fact_msg);
             }
+            for(vector<string>::iterator ito = agentVisible.begin(); ito != agentVisible.end(); ito++){
+                for(vector<string>::iterator ita = agentVisible.begin(); ita != agentVisible.end(); ita++){
+                    if(*ito != *ita){
+                        fact_msg.property = "isVisibleBy";
+                        fact_msg.propertyType = "state";
+                        fact_msg.subjectId = *ito;
+                        fact_msg.targetId = *ita;
+                        fact_msg.factObservability = 1.0;
+                        factList_msg.factList.push_back(fact_msg);
+                        fact_msg.property = "isVisibleBy";
+                        fact_msg.propertyType = "state";
+                        fact_msg.subjectId = *ita;
+                        fact_msg.targetId = *ito;
+                        fact_msg.factObservability = 1.0;
+                        factList_msg.factList.push_back(fact_msg);
+                    }
+                }
+                fact_msg.property = "isVisibleBy";
+                fact_msg.propertyType = "state";
+                fact_msg.subjectId = *ito;
+                fact_msg.targetId = robotName;
+                fact_msg.factObservability = 1.0;
+                factList_msg.factList.push_back(fact_msg);
+                fact_msg.property = "isVisibleBy";
+                fact_msg.propertyType = "state";
+                fact_msg.subjectId = robotName;
+                fact_msg.targetId = *ito;
+                fact_msg.factObservability = 1.0;
+                factList_msg.factList.push_back(fact_msg);
+            }
 
         }
         
