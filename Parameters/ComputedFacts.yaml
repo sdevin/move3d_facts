@@ -13,7 +13,7 @@ thresholdReachable:
 humanJoint: 'rightHand'
 robotJoint: 'pr2laser_tilt_mount_joint'
 robotName: 'PR2_ROBOT'
-objectToMonitor: ['RED_CUBE', 'BLUE_CUBE', 'BLACK_CUBE', 'GREEN_CUBE', 'GREY_TAPE', 'LOTR_TAPE', 'WALLE_TAPE', 'PLACEMAT_RED']
+objectToMonitor: ['RED_CUBE', 'RED_CUBE1', 'RED_CUBE2', 'BLUE_CUBE', 'BLUE_CUBE1', 'BLUE_CUBE2', 'STICK', 'BLACK_CUBE', 'GREEN_CUBE', 'GREY_TAPE', 'LOTR_TAPE', 'WALLE_TAPE', 'PLACEMAT_RED', 'PLACEMAT_1', 'PLACEMAT_2']
 supportToMonitor: ['TABLE_4']
 agentToMonitor: ['HERAKLES_HUMAN1', 'HERAKLES_HUMAN2']
 
