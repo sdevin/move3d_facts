@@ -14,8 +14,9 @@ using namespace std;
 string humanJoint, robotJoint;
 double thresholdHuman, thresholdRobot, thresholdHumanSupport, thresholdRobotSupport;
 vector<string> toMonitorObjects, toMonitorSupports, toMonitorAgents;
-string robotName, areaVisible;
+string robotName, areaVisible, robotArea, humanArea;
 vector<toaster_msgs::Fact> distanceFacts, areaFacts;
+bool isReachableByArea;
 
 bool toMonitorObject(string object){
 
@@ -81,6 +82,9 @@ int main(int argc, char** argv) {
     node.getParam("agentToMonitor", toMonitorAgents);
     node.getParam("robotName", robotName);
     node.getParam("areaVisible", areaVisible);
+    node.getParam("isReachableByArea", isReachableByArea);
+    node.getParam("humanArea", humanArea);
+    node.getParam("robotArea", robotArea);
 
     // Publishing
     ros::Publisher facts_pub = node.advertise<toaster_msgs::FactList>("move3d_facts/factList", 1000);
@@ -103,43 +107,66 @@ int main(int argc, char** argv) {
       node.getParam("/computedFacts/isOn", isOn);
       node.getParam("/computedFacts/isIn", isIn);
         
-        if(isReachableBy){       
-            for(vector<toaster_msgs::Fact>::iterator it = distanceFacts.begin(); it != distanceFacts.end(); it++){
-                if(it->property == "Distance"){
-                    if(toMonitorObject(it->targetId)){
-                        if(it->subjectId == humanJoint && it->doubleValue < thresholdHuman){
+        if(isReachableBy){
+            if(isReachableByArea){
+                for(vector<toaster_msgs::Fact>::iterator it = areaFacts.begin(); it != areaFacts.end(); it++){
+                    if(toMonitorObject(it->subjectId) || toMonitorSuport(it->subjectId)){
+                        if(it->property == "IsInArea" && it->targetId == humanArea){
                             fact_msg.property = "isReachableBy";
                             fact_msg.propertyType = "state";
-                            fact_msg.subjectId = it->targetId;
-                            fact_msg.targetId = it->subjectOwnerId;
+                            fact_msg.subjectId = it->subjectId;
+                            fact_msg.targetId = "HERAKLES_HUMAN1";
                             fact_msg.factObservability = 1.0;
                             factList_msg.factList.push_back(fact_msg);
                         }
-                        if(it->subjectId == robotJoint && it->doubleValue < thresholdRobot){
+                        if(it->property == "IsInArea" && it->targetId == robotArea){
                             fact_msg.property = "isReachableBy";
                             fact_msg.propertyType = "state";
-                            fact_msg.subjectId = it->targetId;
+                            fact_msg.subjectId = it->subjectId;
                             fact_msg.targetId = robotName;
                             fact_msg.factObservability = 1.0;
                             factList_msg.factList.push_back(fact_msg);
                         }
                     }
-                    if(toMonitorSuport(it->targetId)){
-                        if(it->subjectId == humanJoint && it->doubleValue < thresholdHumanSupport){
-                            fact_msg.property = "isReachableBy";
-                            fact_msg.propertyType = "state";
-                            fact_msg.subjectId = it->targetId;
-                            fact_msg.targetId = it->subjectOwnerId;
-                            fact_msg.factObservability = 1.0;
-                            factList_msg.factList.push_back(fact_msg);
+                }
+            }else{
+                for(vector<toaster_msgs::Fact>::iterator it = distanceFacts.begin(); it != distanceFacts.end(); it++){
+                    if(it->property == "Distance"){
+                        if(toMonitorObject(it->targetId)){
+                            if(it->subjectId == humanJoint && it->doubleValue < thresholdHuman){
+                                fact_msg.property = "isReachableBy";
+                                fact_msg.propertyType = "state";
+                                fact_msg.subjectId = it->targetId;
+                                fact_msg.targetId = it->subjectOwnerId;
+                                fact_msg.factObservability = 1.0;
+                                factList_msg.factList.push_back(fact_msg);
+                            }
+                            if(it->subjectId == robotJoint && it->doubleValue < thresholdRobot){
+                                fact_msg.property = "isReachableBy";
+                                fact_msg.propertyType = "state";
+                                fact_msg.subjectId = it->targetId;
+                                fact_msg.targetId = robotName;
+                                fact_msg.factObservability = 1.0;
+                                factList_msg.factList.push_back(fact_msg);
+                            }
                         }
-                        if(it->subjectId == robotJoint && it->doubleValue < thresholdRobotSupport){
-                            fact_msg.property = "isReachableBy";
-                            fact_msg.propertyType = "state";
-                            fact_msg.subjectId = it->targetId;
-                            fact_msg.targetId = robotName;
-                            fact_msg.factObservability = 1.0;
-                            factList_msg.factList.push_back(fact_msg);
+                        if(toMonitorSuport(it->targetId)){
+                            if(it->subjectId == humanJoint && it->doubleValue < thresholdHumanSupport){
+                                fact_msg.property = "isReachableBy";
+                                fact_msg.propertyType = "state";
+                                fact_msg.subjectId = it->targetId;
+                                fact_msg.targetId = it->subjectOwnerId;
+                                fact_msg.factObservability = 1.0;
+                                factList_msg.factList.push_back(fact_msg);
+                            }
+                            if(it->subjectId == robotJoint && it->doubleValue < thresholdRobotSupport){
+                                fact_msg.property = "isReachableBy";
+                                fact_msg.propertyType = "state";
+                                fact_msg.subjectId = it->targetId;
+                                fact_msg.targetId = robotName;
+                                fact_msg.factObservability = 1.0;
+                                factList_msg.factList.push_back(fact_msg);
+                            }
                         }
                     }
                 }

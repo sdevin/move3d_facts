@@ -12,9 +12,12 @@ thresholdReachable:
     robotSupport: 3.0
 humanJoint: 'rightHand'
 robotJoint: 'pr2laser_tilt_mount_joint'
+isReachableByArea: true
+humanArea: 'humanReachable'
+robotArea: 'robotReachable'
 robotName: 'PR2_ROBOT'
 objectToMonitor: ['RED_CUBE', 'RED_CUBE1', 'RED_CUBE2', 'RED_CUBE3', 'BLUE_CUBE', 'BLUE_CUBE1', 'BLUE_CUBE2', 'BLUE_CUBE3', 'STICK', 'BLACK_CUBE', 'GREEN_CUBE', 'GREEN_CUBE2', 'GREY_TAPE', 'LOTR_TAPE', 'WALLE_TAPE', 'PLACEMAT_RED', 'PLACEMAT_1', 'PLACEMAT_2', 'PINK_TRASHBIN', 'GREEN_TRASHBIN', 'PLACEMAT_ROBOT', 'PLACEMAT_HUMAN', 'PLACEMAT_HUMAN2']
-supportToMonitor: ['TABLE_4']
+supportToMonitor: ['TABLE_4', 'PLACEMAT_1', 'PLACEMAT_2']
 agentToMonitor: ['HERAKLES_HUMAN1', 'HERAKLES_HUMAN2']
 
 areaVisible: 'interaction'
