@@ -13,10 +13,10 @@ using namespace std;
 
 string humanJoint, robotJoint;
 double thresholdHuman, thresholdRobot, thresholdHumanSupport, thresholdRobotSupport;
-vector<string> toMonitorObjects, toMonitorSupports, toMonitorAgents;
+vector<string> toMonitorObjects, toMonitorSupports, toMonitorAgents, areasReachable;
 string robotName, areaVisible, robotArea, humanArea;
 vector<toaster_msgs::Fact> distanceFacts, areaFacts;
-bool isReachableByArea;
+bool isReachableByArea, isReachableByArea2;
 
 bool toMonitorObject(string object){
 
@@ -54,6 +54,18 @@ bool toMonitorAgent(string agent){
     return false;
 }
 
+bool isAreaReachable(string area){
+
+    //We check if the object is in the list
+    for(vector<string>::iterator it = areasReachable.begin(); it != areasReachable.end(); it++){
+       if(*it == area){
+          return true;
+       }
+    }
+
+    return false;
+}
+
 void agentFactListCallback(const toaster_msgs::FactList::ConstPtr& msg){
 
     distanceFacts = msg->factList;
@@ -79,10 +91,12 @@ int main(int argc, char** argv) {
     node.getParam("thresholdReachable/robotSupport", thresholdRobotSupport);
     node.getParam("objectToMonitor", toMonitorObjects);
     node.getParam("supportToMonitor", toMonitorSupports);
+    node.getParam("areasReachable", areasReachable);
     node.getParam("agentToMonitor", toMonitorAgents);
     node.getParam("robotName", robotName);
     node.getParam("areaVisible", areaVisible);
     node.getParam("isReachableByArea", isReachableByArea);
+    node.getParam("isReachableByArea2", isReachableByArea2);
     node.getParam("humanArea", humanArea);
     node.getParam("robotArea", robotArea);
 
@@ -129,7 +143,41 @@ int main(int argc, char** argv) {
                         }
                     }
                 }
-            }else{
+            }else if(isReachableByArea2){
+                //we look for agents positions
+                map<string, string> agentsAreas;
+                for(vector<toaster_msgs::Fact>::iterator it = areaFacts.begin(); it != areaFacts.end(); it++){
+                    if(it->property == "IsInArea" && isAreaReachable(it->targetId)){
+                        if(toMonitorAgent(it->subjectId) || it->subjectId == "pr2"){
+                            agentsAreas[it->subjectId] = it->targetId;
+                        }
+                    }
+                }
+                for(vector<toaster_msgs::Fact>::iterator it = areaFacts.begin(); it != areaFacts.end(); it++){
+                    if(toMonitorObject(it->subjectId) || toMonitorSuport(it->subjectId)){
+                        if(it->property == "IsInArea" && isAreaReachable(it->targetId)){
+                            for(vector<string>::iterator ita = toMonitorAgents.begin(); ita != toMonitorAgents.end(); ita++){
+                                if(agentsAreas[*ita] == it->targetId){
+                                    fact_msg.property = "isReachableBy";
+                                    fact_msg.propertyType = "state";
+                                    fact_msg.subjectId = it->subjectId;
+                                    fact_msg.targetId = *ita;
+                                    fact_msg.factObservability = 1.0;
+                                    factList_msg.factList.push_back(fact_msg);
+                                }
+                            }
+                            if(agentsAreas["pr2"] == it->targetId){
+                                fact_msg.property = "isReachableBy";
+                                fact_msg.propertyType = "state";
+                                fact_msg.subjectId = it->subjectId;
+                                fact_msg.targetId = robotName;
+                                fact_msg.factObservability = 1.0;
+                                factList_msg.factList.push_back(fact_msg);
+                            }
+                        }
+                    }
+                }
+            }{
                 for(vector<toaster_msgs::Fact>::iterator it = distanceFacts.begin(); it != distanceFacts.end(); it++){
                     if(it->property == "Distance"){
                         if(toMonitorObject(it->targetId)){

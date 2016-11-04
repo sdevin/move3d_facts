@@ -1,0 +1,27 @@
+---
+computedFacts:
+   isReachableBy: true
+   isVisibleBy: false
+   isOn: false
+   isIn: false
+
+thresholdReachable:
+    humanObject: 3.0
+    robotObject: 3.0
+    humanSupport: 3.0
+    robotSupport: 3.0
+humanJoint: 'rightHand'
+robotJoint: 'pr2laser_tilt_mount_joint'
+isReachableByArea: false
+isReachableByArea2: true
+areasReachable: ['robotReachable', 'humanReachable', 'secondReachable']
+humanArea: 'humanReachable'
+robotArea: 'robotReachable'
+robotName: 'PR2_ROBOT'
+objectToMonitor: ['GREEN_TAPE1', 'GREEN_TAPE2', 'GREEN_TAPE3', 'BLUE_TAPE1', 'BLUE_TAPE2', 'BLUE_TAPE3', 'PLACEMAT_1', 'PLACEMAT_2', 'PLACEMAT_3', 'PLACEMAT_4', 'PLACEMAT_5', 'PLACEMAT_6', 'PLACEMAT_7', 'GREEN_TRASHBIN', 'BLUE_TRASHBIN', 'TABLE_4']
+supportToMonitor: []
+agentToMonitor: ['HERAKLES_HUMAN1']
+
+areaVisible: 'interaction'
+
+
