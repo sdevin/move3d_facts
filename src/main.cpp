@@ -14,9 +14,22 @@ using namespace std;
 string humanJoint, robotJoint;
 double thresholdHuman, thresholdRobot, thresholdHumanSupport, thresholdRobotSupport;
 vector<string> toMonitorObjects, toMonitorSupports, toMonitorAgents;
-string robotName, areaVisible, robotArea, humanArea;
-vector<toaster_msgs::Fact> distanceFacts, areaFacts;
-bool isReachableByArea;
+string robotName, areaVisible;
+vector<string> robotAreas, humanAreas;
+vector<toaster_msgs::Fact> agentsFacts, areaFacts;
+bool isReachableByArea, isVisibleByArea, isVisibleByFacing;
+double isFacingThreshold;
+
+bool isInList(string element, vector<string> list){
+
+    for(vector<string>::iterator it = list.begin(); it != list.end(); it++){
+        if(*it == element){
+            return true;
+        }
+    }
+
+    return false;
+}
 
 bool toMonitorObject(string object){
 
@@ -56,7 +69,7 @@ bool toMonitorAgent(string agent){
 
 void agentFactListCallback(const toaster_msgs::FactList::ConstPtr& msg){
 
-    distanceFacts = msg->factList;
+    agentsFacts = msg->factList;
 
 }
 
@@ -83,8 +96,11 @@ int main(int argc, char** argv) {
     node.getParam("robotName", robotName);
     node.getParam("areaVisible", areaVisible);
     node.getParam("isReachableByArea", isReachableByArea);
-    node.getParam("humanArea", humanArea);
-    node.getParam("robotArea", robotArea);
+    node.getParam("isVisibleByArea", isVisibleByArea);
+    node.getParam("isVisibleByFacing", isVisibleByFacing);
+    node.getParam("humanAreas", humanAreas);
+    node.getParam("robotAreas", robotAreas);
+    node.getParam("isFacingThreshold", isFacingThreshold);
 
     // Publishing
     ros::Publisher facts_pub = node.advertise<toaster_msgs::FactList>("move3d_facts/factList", 1000);
@@ -111,7 +127,7 @@ int main(int argc, char** argv) {
             if(isReachableByArea){
                 for(vector<toaster_msgs::Fact>::iterator it = areaFacts.begin(); it != areaFacts.end(); it++){
                     if(toMonitorObject(it->subjectId) || toMonitorSuport(it->subjectId)){
-                        if(it->property == "IsInArea" && it->targetId == humanArea){
+                        if(it->property == "IsInArea" && isInList(it->targetId, humanAreas)){
                             fact_msg.property = "isReachableBy";
                             fact_msg.propertyType = "state";
                             fact_msg.subjectId = it->subjectId;
@@ -119,7 +135,7 @@ int main(int argc, char** argv) {
                             fact_msg.factObservability = 1.0;
                             factList_msg.factList.push_back(fact_msg);
                         }
-                        if(it->property == "IsInArea" && it->targetId == robotArea){
+                        if(it->property == "IsInArea" && isInList(it->targetId, robotAreas)){
                             fact_msg.property = "isReachableBy";
                             fact_msg.propertyType = "state";
                             fact_msg.subjectId = it->subjectId;
@@ -130,7 +146,7 @@ int main(int argc, char** argv) {
                     }
                 }
             }else{
-                for(vector<toaster_msgs::Fact>::iterator it = distanceFacts.begin(); it != distanceFacts.end(); it++){
+                for(vector<toaster_msgs::Fact>::iterator it = agentsFacts.begin(); it != agentsFacts.end(); it++){
                     if(it->property == "Distance"){
                         if(toMonitorObject(it->targetId)){
                             if(it->subjectId == humanJoint && it->doubleValue < thresholdHuman){
@@ -174,61 +190,83 @@ int main(int argc, char** argv) {
         }
         
         if(isVisibleBy){
-            vector<string> objectsVisible, agentVisible;
-            for(vector<toaster_msgs::Fact>::iterator it = areaFacts.begin(); it != areaFacts.end(); it++){
-                if(it->property == "IsInArea" && it->targetId == areaVisible){
-                    if(toMonitorAgent(it->subjectId)){
-                        agentVisible.push_back(it->subjectId);
-                    }else if(toMonitorObject(it->subjectId) || toMonitorSuport(it->subjectId)){
-                        objectsVisible.push_back(it->subjectId);
+            if(isVisibleByArea){
+                vector<string> objectsVisible, agentVisible;
+                for(vector<toaster_msgs::Fact>::iterator it = areaFacts.begin(); it != areaFacts.end(); it++){
+                    if(it->property == "IsInArea" && it->targetId == areaVisible){
+                        if(toMonitorAgent(it->subjectId)){
+                            agentVisible.push_back(it->subjectId);
+                        }else if(toMonitorObject(it->subjectId) || toMonitorSuport(it->subjectId)){
+                            objectsVisible.push_back(it->subjectId);
+                        }
                     }
                 }
-            }
-            for(vector<string>::iterator ito = objectsVisible.begin(); ito != objectsVisible.end(); ito++){
-                for(vector<string>::iterator ita = agentVisible.begin(); ita != agentVisible.end(); ita++){
-                    fact_msg.property = "isVisibleBy";
-                    fact_msg.propertyType = "state";
-                    fact_msg.subjectId = *ito;
-                    fact_msg.targetId = *ita;
-                    fact_msg.factObservability = 1.0;
-                    factList_msg.factList.push_back(fact_msg);
-                }
-                fact_msg.property = "isVisibleBy";
-                fact_msg.propertyType = "state";
-                fact_msg.subjectId = *ito;
-                fact_msg.targetId = robotName;
-                fact_msg.factObservability = 1.0;
-                factList_msg.factList.push_back(fact_msg);
-            }
-            for(vector<string>::iterator ito = agentVisible.begin(); ito != agentVisible.end(); ito++){
-                for(vector<string>::iterator ita = agentVisible.begin(); ita != agentVisible.end(); ita++){
-                    if(*ito != *ita){
+                for(vector<string>::iterator ito = objectsVisible.begin(); ito != objectsVisible.end(); ito++){
+                    for(vector<string>::iterator ita = agentVisible.begin(); ita != agentVisible.end(); ita++){
                         fact_msg.property = "isVisibleBy";
                         fact_msg.propertyType = "state";
                         fact_msg.subjectId = *ito;
                         fact_msg.targetId = *ita;
                         fact_msg.factObservability = 1.0;
                         factList_msg.factList.push_back(fact_msg);
+                    }
+                    fact_msg.property = "isVisibleBy";
+                    fact_msg.propertyType = "state";
+                    fact_msg.subjectId = *ito;
+                    fact_msg.targetId = robotName;
+                    fact_msg.factObservability = 1.0;
+                    factList_msg.factList.push_back(fact_msg);
+                }
+                for(vector<string>::iterator ito = agentVisible.begin(); ito != agentVisible.end(); ito++){
+                    for(vector<string>::iterator ita = agentVisible.begin(); ita != agentVisible.end(); ita++){
+                        if(*ito != *ita){
+                            fact_msg.property = "isVisibleBy";
+                            fact_msg.propertyType = "state";
+                            fact_msg.subjectId = *ito;
+                            fact_msg.targetId = *ita;
+                            fact_msg.factObservability = 1.0;
+                            factList_msg.factList.push_back(fact_msg);
+                            fact_msg.property = "isVisibleBy";
+                            fact_msg.propertyType = "state";
+                            fact_msg.subjectId = *ita;
+                            fact_msg.targetId = *ito;
+                            fact_msg.factObservability = 1.0;
+                            factList_msg.factList.push_back(fact_msg);
+                        }
+                    }
+                    fact_msg.property = "isVisibleBy";
+                    fact_msg.propertyType = "state";
+                    fact_msg.subjectId = *ito;
+                    fact_msg.targetId = robotName;
+                    fact_msg.factObservability = 1.0;
+                    factList_msg.factList.push_back(fact_msg);
+                    fact_msg.property = "isVisibleBy";
+                    fact_msg.propertyType = "state";
+                    fact_msg.subjectId = robotName;
+                    fact_msg.targetId = *ito;
+                    fact_msg.factObservability = 1.0;
+                    factList_msg.factList.push_back(fact_msg);
+                }
+            }
+            if(isVisibleByFacing){
+                for(vector<toaster_msgs::Fact>::iterator it = agentsFacts.begin(); it != agentsFacts.end(); it++){
+                    if(it->property == "IsLookingToward" && it->doubleValue >= isFacingThreshold){
+                        if(it->subjectId == "pr2"){
+                            fact_msg.targetId = robotName;
+                        }else{
+                            fact_msg.targetId = it->subjectId;
+                        }
+                        if(it->targetId == "pr2"){
+                            fact_msg.subjectId = robotName;
+                        }else{
+                            fact_msg.subjectId = it->targetId;
+                        }
                         fact_msg.property = "isVisibleBy";
                         fact_msg.propertyType = "state";
-                        fact_msg.subjectId = *ita;
-                        fact_msg.targetId = *ito;
                         fact_msg.factObservability = 1.0;
                         factList_msg.factList.push_back(fact_msg);
                     }
                 }
-                fact_msg.property = "isVisibleBy";
-                fact_msg.propertyType = "state";
-                fact_msg.subjectId = *ito;
-                fact_msg.targetId = robotName;
-                fact_msg.factObservability = 1.0;
-                factList_msg.factList.push_back(fact_msg);
-                fact_msg.property = "isVisibleBy";
-                fact_msg.propertyType = "state";
-                fact_msg.subjectId = robotName;
-                fact_msg.targetId = *ito;
-                fact_msg.factObservability = 1.0;
-                factList_msg.factList.push_back(fact_msg);
             }
 
         }

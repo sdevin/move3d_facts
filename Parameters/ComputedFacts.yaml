@@ -13,13 +13,16 @@ thresholdReachable:
 humanJoint: 'rightHand'
 robotJoint: 'pr2laser_tilt_mount_joint'
 isReachableByArea: true
-humanArea: 'humanReachable'
-robotArea: 'robotReachable'
+isVisibleByArea: false
+isVisibleByFacing: true
+isFacingThreshold: 0.7
+humanAreas: ['humanReachable1', 'humanReachable2', 'humanReachable3']
+robotAreas: ['robotReachable']
 robotName: 'PR2_ROBOT'
-objectToMonitor: ['RED_CUBE', 'RED_CUBE1', 'RED_CUBE2', 'RED_CUBE3', 'BLUE_CUBE', 'BLUE_CUBE1', 'BLUE_CUBE2', 'BLUE_CUBE3', 'STICK', 'BLACK_CUBE', 'GREEN_CUBE', 'GREEN_CUBE2', 'GREY_TAPE', 'LOTR_TAPE', 'WALLE_TAPE', 'PLACEMAT_RED', 'PLACEMAT_1', 'PLACEMAT_2', 'PINK_TRASHBIN', 'GREEN_TRASHBIN', 'PLACEMAT_ROBOT', 'PLACEMAT_HUMAN', 'PLACEMAT_HUMAN2']
+objectToMonitor: ['RED_CUBE', 'RED_CUBE1', 'RED_CUBE2', 'RED_CUBE3', 'BLUE_CUBE', 'BLUE_CUBE1', 'BLUE_CUBE2', 'BLUE_CUBE3', 'STICK', 'BLACK_CUBE', 'GREEN_CUBE', 'GREEN_CUBE1', 'GREEN_CUBE2', 'GREEN_CUBE3', 'GREY_TAPE', 'LOTR_TAPE', 'RED_TAPE1', 'RED_TAPE2', 'WALLE_TAPE', 'PLACEMAT_RED', 'PLACEMAT_1', 'PLACEMAT_2', 'SCAN_AREA1', 'SCAN_AREA2', 'PINK_TRASHBIN', 'GREEN_TRASHBIN', 'GREEN_BOX', 'BLUE_BOX', 'RED_BOX1', 'RED_BOX2', 'PLACEMAT_ROBOT', 'PLACEMAT_HUMAN', 'PLACEMAT_HUMAN2']
 supportToMonitor: ['TABLE_4', 'PLACEMAT_1', 'PLACEMAT_2']
 agentToMonitor: ['HERAKLES_HUMAN1', 'HERAKLES_HUMAN2']
 
-areaVisible: 'interaction'
+areaVisible: 'areaVisible'
 
 
