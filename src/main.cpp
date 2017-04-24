@@ -67,18 +67,6 @@ bool toMonitorAgent(string agent){
     return false;
 }
 
-bool isAreaReachable(string area){
-
-    //We check if the object is in the list
-    for(vector<string>::iterator it = areasReachable.begin(); it != areasReachable.end(); it++){
-       if(*it == area){
-          return true;
-       }
-    }
-
-    return false;
-}
-
 void agentFactListCallback(const toaster_msgs::FactList::ConstPtr& msg){
 
     agentsFacts = msg->factList;
@@ -104,7 +92,6 @@ int main(int argc, char** argv) {
     node.getParam("thresholdReachable/robotSupport", thresholdRobotSupport);
     node.getParam("objectToMonitor", toMonitorObjects);
     node.getParam("supportToMonitor", toMonitorSupports);
-    node.getParam("areasReachable", areasReachable);
     node.getParam("agentToMonitor", toMonitorAgents);
     node.getParam("robotName", robotName);
     node.getParam("areaVisible", areaVisible);
